@@ -8,7 +8,7 @@ def main(page: flet.Page):
 
 
     page.views.append(views.length_view(page))
-    page.appbar = views.navBar(page)
+    page.navigation_bar = views.navBar(page)
     page.update()
 
 flet.app(main)

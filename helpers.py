@@ -1,5 +1,7 @@
 import flet
 
+# these blocks of codes are shit don't look at it just scrol til you see these ------ (but it works)
+
 def oneLengthToOther(cm,inc,ft,mi,kl):
     
     if cm: 
@@ -83,3 +85,50 @@ def oneDataToOthers(byte, megabyte, gigabyte, terabyte):
         gigabyte = str(round(float(terabyte) * 1024, 2))
 
     return byte, megabyte, gigabyte, terabyte
+
+#----------------------------------------
+
+
+def copy_to_clipboard(text, page: flet.Page):
+    print(text)
+    page.set_clipboard(text)
+    snack_bar = flet.SnackBar(flet.Text("Copied To Clipboard"))
+    page.overlay.append(snack_bar)
+    snack_bar.open = True
+    page.update()
+
+
+
+def get_current_page(page: flet.Page):
+    match page.route:
+        case "/length":
+            return 0
+        case "/weight":
+            return 1
+        case "/data":
+            return 2
+        
+# Label to display errors
+error_label = flet.Text(value="", color=flet.colors.RED)
+
+def validate_input(e: flet.ControlEvent,page):
+    if not e.control.value.isdigit():  # Check if the input is not numeric
+        error_label.value = "Please enter a valid number"
+        error_label.color = flet.colors.RED
+    else:
+        error_label.value = ""
+    page.update()
+
+
+def create_text_field(page,label):
+    text_field = flet.TextField(on_change=lambda e: validate_input(e, page),label=label, content_padding=flet.padding.Padding(15,2,15,2))
+
+    copy_button = flet.IconButton(
+        icon=flet.icons.COPY_ROUNDED,
+        on_click=lambda _: copy_to_clipboard(text_field.value, page)
+    )
+
+    text_field.suffix = copy_button
+
+
+    return text_field

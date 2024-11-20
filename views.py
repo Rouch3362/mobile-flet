@@ -6,6 +6,9 @@ buttonStyle = flet.ButtonStyle(
     color=flet.colors.WHITE,
 )
 
+copyIcon = flet.icons.COPY_ROUNDED
+
+
 def convertButton(convertFunction):
     return flet.TextButton(
         text="Convert", 
@@ -18,31 +21,26 @@ def convertButton(convertFunction):
 
 
 
-def validate_input(e: flet.ControlEvent,page):
-    if not e.control.value.isdigit():  # Check if the input is not numeric
-        error_label.value = "Please enter a valid number"
-        error_label.color = flet.colors.RED
-        print(e.target[0])
-    else:
-        error_label.value = ""
-    page.update()
 
 
-# Label to display errors
-error_label = flet.Text(value="", color=flet.colors.RED)
+
+
 
 def navigationHandler(e,page: flet.Page):
+    page.views.clear()
+
     if e.control.selected_index == 0:
-        page.views.clear()
+        page.go("/length")
         page.views.append(length_view(page)) 
     elif e.control.selected_index == 1:
-        page.views.clear()
+        page.go("/weight")
         page.views.append(weight_view(page))
     elif e.control.selected_index == 2:
-        page.views.clear()
+        page.go("/data")
         page.views.append(data_view(page))
     
     page.update()
+
 
 def navBar(page):
     return flet.NavigationBar(
@@ -52,7 +50,7 @@ def navBar(page):
             flet.NavigationBarDestination(icon=flet.icons.MONITOR_WEIGHT_OUTLINED, label="Weight"),
             flet.NavigationBarDestination(icon=flet.icons.DATA_USAGE_OUTLINED, label="Data")
         ],
-        selected_index=0
+        selected_index=helpers.get_current_page(page)
 ) 
 
 
@@ -71,24 +69,23 @@ def length_view(page: flet.Page):
         kl.value  = ""
         page.update()
 
-    inc = flet.TextField(on_change=lambda e: validate_input(e, page),label="Inch")
-    cm = flet.TextField(on_change=lambda e: validate_input(e, page),label="Centimetre", on_focus=emptyLengthInputs)
-    ft = flet.TextField(on_change=lambda e: validate_input(e, page),label="Foot", on_focus=emptyLengthInputs)
-    mi = flet.TextField(on_change=lambda e: validate_input(e, page),label="Mile", on_focus=emptyLengthInputs)
-    kl = flet.TextField(on_change=lambda e: validate_input(e, page),label="Kilometre", on_focus=emptyLengthInputs)
+    inc = helpers.create_text_field(page, "Inch")
+    cm  = helpers.create_text_field(page, "Centimetre")
+    ft  = helpers.create_text_field(page, "Foot")
+    mi  = helpers.create_text_field(page, "Mile")
+    kl  = helpers.create_text_field(page, "Kilometre")
                 
 
     return flet.View(
             "/length",
             controls=[
-                error_label,
+                helpers.error_label,
                 cm,
                 inc,
                 ft,
                 mi,
                 kl,
-                convertButton(convertLength)]
-                ,
+                convertButton(convertLength)],
                 padding=20,
                 vertical_alignment=flet.MainAxisAlignment.CENTER,
                 horizontal_alignment=flet.CrossAxisAlignment.CENTER,
@@ -116,17 +113,17 @@ def weight_view(page: flet.Page):
         pound.value = ""
         ounce.value = ""
         page.update()
-
-    gram  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Gram", on_focus=emptyWeightInputs)
-    kilo  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Kilogram", on_focus=emptyWeightInputs)
-    pound = flet.TextField(on_change=lambda e: validate_input(e, page),label="Pound", on_focus=emptyWeightInputs)
-    ounce  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Ounce", on_focus=emptyWeightInputs)
+    
+    gram  = helpers.create_text_field(page,"Gram")
+    kilo  = helpers.create_text_field(page, "Kilogram")
+    pound = helpers.create_text_field(page, "Pound")
+    ounce = helpers.create_text_field(page, "Ounce")
 
         
     return flet.View(
         "/weight",
         [
-            error_label,
+            helpers.error_label,
             gram,
             kilo,
             pound,
@@ -160,16 +157,16 @@ def data_view(page: flet.Page):
         terabyte.value = ""
         page.update()
 
-    byte  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Byte", on_focus=emptyDataInputs)
-    megabyte  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Megabyte", on_focus=emptyDataInputs)
-    gigabyte = flet.TextField(on_change=lambda e: validate_input(e, page),label="Gigabyte", on_focus=emptyDataInputs)
-    terabyte  = flet.TextField(on_change=lambda e: validate_input(e, page),label="Terabyte", on_focus=emptyDataInputs)
+    byte      = helpers.create_text_field(page, "Byte")
+    megabyte  = helpers.create_text_field(page, "Megabyte")
+    gigabyte  = helpers.create_text_field(page, "Gigabyte")
+    terabyte  = helpers.create_text_field(page, "Terabyte")
 
     
     return flet.View(
         "/data",
             [
-            error_label,
+            helpers.error_label,
             byte,
             megabyte,
             gigabyte,
