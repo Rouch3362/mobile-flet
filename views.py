@@ -1,5 +1,7 @@
 import flet
 import helpers
+from api_calls import send_request
+
 
 buttonStyle = flet.ButtonStyle(
     bgcolor=flet.colors.BLUE_400,
@@ -20,24 +22,21 @@ def convertButton(convertFunction):
         )
 
 
-
-
-
-
-
-
 def navigationHandler(e,page: flet.Page):
     page.views.clear()
-
-    if e.control.selected_index == 0:
+    clicked_tab = e.control.selected_index
+    if clicked_tab == 0:
         page.go("/length")
         page.views.append(length_view(page)) 
-    elif e.control.selected_index == 1:
+    elif clicked_tab == 1:
         page.go("/weight")
         page.views.append(weight_view(page))
-    elif e.control.selected_index == 2:
+    elif clicked_tab == 2:
         page.go("/data")
         page.views.append(data_view(page))
+    elif clicked_tab == 3:
+        page.go("/currency")
+        page.views.append(currency_view(page))
     
     page.update()
 
@@ -48,7 +47,8 @@ def navBar(page):
         destinations=[
             flet.NavigationBarDestination(icon=flet.icons.SOCIAL_DISTANCE_OUTLINED, label="Length"),
             flet.NavigationBarDestination(icon=flet.icons.MONITOR_WEIGHT_OUTLINED, label="Weight"),
-            flet.NavigationBarDestination(icon=flet.icons.DATA_USAGE_OUTLINED, label="Data")
+            flet.NavigationBarDestination(icon=flet.icons.DATA_USAGE_OUTLINED, label="Data"),
+            flet.NavigationBarDestination(icon=flet.icons.CURRENCY_EXCHANGE_OUTLINED , label="Currency")
         ],
         selected_index=helpers.get_current_page(page)
 ) 
@@ -58,6 +58,12 @@ def navBar(page):
 def length_view(page: flet.Page):
 
     def convertLength(e):
+        error = helpers.check_for_invalid_input([
+            cm.value, inc.value, ft.value, mi.value, kl.value
+        ],page)
+        if error:
+            return
+        
         cm.value , inc.value, ft.value, mi.value, kl.value = helpers.oneLengthToOther(cm.value,inc.value, ft.value, mi.value, kl.value)
         page.update()
 
@@ -69,17 +75,16 @@ def length_view(page: flet.Page):
         kl.value  = ""
         page.update()
 
-    inc = helpers.create_text_field(page, "Inch")
-    cm  = helpers.create_text_field(page, "Centimetre")
-    ft  = helpers.create_text_field(page, "Foot")
-    mi  = helpers.create_text_field(page, "Mile")
-    kl  = helpers.create_text_field(page, "Kilometre")
+    inc = helpers.create_text_field(page, "Inch", emptyLengthInputs)
+    cm  = helpers.create_text_field(page, "Centimetre", emptyLengthInputs)
+    ft  = helpers.create_text_field(page, "Foot", emptyLengthInputs)
+    mi  = helpers.create_text_field(page, "Mile", emptyLengthInputs)
+    kl  = helpers.create_text_field(page, "Kilometre", emptyLengthInputs)
                 
 
     return flet.View(
             "/length",
             controls=[
-                helpers.error_label,
                 cm,
                 inc,
                 ft,
@@ -98,6 +103,11 @@ def length_view(page: flet.Page):
 
 def weight_view(page: flet.Page):
     def convertWeight(e):
+        error = helpers.check_for_invalid_input([
+            gram.value, kilo.value, pound.value, ounce.value
+        ],page)
+        if error:
+            return
         gram.value, kilo.value, pound.value, ounce.value = helpers.oneWeightToOther(
             gram.value,
             kilo.value,
@@ -114,16 +124,15 @@ def weight_view(page: flet.Page):
         ounce.value = ""
         page.update()
     
-    gram  = helpers.create_text_field(page,"Gram")
-    kilo  = helpers.create_text_field(page, "Kilogram")
-    pound = helpers.create_text_field(page, "Pound")
-    ounce = helpers.create_text_field(page, "Ounce")
+    gram  = helpers.create_text_field(page,"Gram", emptyWeightInputs)
+    kilo  = helpers.create_text_field(page, "Kilogram", emptyWeightInputs)
+    pound = helpers.create_text_field(page, "Pound", emptyWeightInputs)
+    ounce = helpers.create_text_field(page, "Ounce", emptyWeightInputs)
 
         
     return flet.View(
         "/weight",
         [
-            helpers.error_label,
             gram,
             kilo,
             pound,
@@ -141,6 +150,11 @@ def weight_view(page: flet.Page):
 
 def data_view(page: flet.Page):
     def convertData(e):
+        error = helpers.check_for_invalid_input([
+            byte.value, megabyte.value, gigabyte.value, terabyte.value
+        ],page)
+        if error:
+            return
         byte.value, megabyte.value, gigabyte.value, terabyte.value = helpers.oneDataToOthers(
             byte.value,
             megabyte.value,
@@ -157,16 +171,15 @@ def data_view(page: flet.Page):
         terabyte.value = ""
         page.update()
 
-    byte      = helpers.create_text_field(page, "Byte")
-    megabyte  = helpers.create_text_field(page, "Megabyte")
-    gigabyte  = helpers.create_text_field(page, "Gigabyte")
-    terabyte  = helpers.create_text_field(page, "Terabyte")
+    byte      = helpers.create_text_field(page, "Byte", emptyDataInputs)
+    megabyte  = helpers.create_text_field(page, "Megabyte", emptyDataInputs)
+    gigabyte  = helpers.create_text_field(page, "Gigabyte", emptyDataInputs)
+    terabyte  = helpers.create_text_field(page, "Terabyte", emptyDataInputs)
 
     
     return flet.View(
         "/data",
             [
-            helpers.error_label,
             byte,
             megabyte,
             gigabyte,
@@ -179,3 +192,45 @@ def data_view(page: flet.Page):
             spacing=30,
             appbar=navBar(page)
             )
+
+
+
+def currency_view(page: flet.Page):
+
+
+    def convertCurrency(e):
+        usd.value, irr.value, eur.value, cny.value = helpers.oneCurrencyToOther(
+            usd.value, 
+            irr.value, 
+            eur.value, 
+            cny.value)
+        page.update()
+
+    def emptyCurrencyInputs(e):
+        usd.value = ""
+        irr.value = ""
+        eur.value = ""
+        cny.value = ""
+        page.update()
+
+    usd = helpers.create_text_field(page, "US Dollar", emptyCurrencyInputs)
+    irr = helpers.create_text_field(page, "Iranian Rial", emptyCurrencyInputs)
+    eur = helpers.create_text_field(page, "Euro", emptyCurrencyInputs)
+    cny = helpers.create_text_field(page, "Chinese Yuan", emptyCurrencyInputs)
+
+
+    return flet.View(
+        "/currency",
+            [
+            usd,
+            irr,
+            eur,
+            cny,
+            convertButton(convertCurrency)
+            ],
+            padding=20,
+            vertical_alignment=flet.MainAxisAlignment.CENTER,
+            horizontal_alignment=flet.CrossAxisAlignment.CENTER,
+            spacing=30,
+            appbar=navBar(page)
+    )
