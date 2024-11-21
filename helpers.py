@@ -1,6 +1,7 @@
 import flet
-
-# these blocks of codes are shit don't look at it just scrol til you see these ------ (but it works)
+from typing import List
+from api_calls import send_request
+# these blocks of codes are shit don't look at it just scrol til you see these ------ ( but it works :) )
 
 def oneLengthToOther(cm,inc,ft,mi,kl):
     
@@ -52,7 +53,7 @@ def oneWeightToOther(gram,kilo,pound,ounce):
 
     elif pound:
         gram  = str(round(float(pound) * 4536 ,4))
-        kilo  = str(round(float(pound) / 2205 ,4))
+        kilo  = str(round(float(pound) / 2.205 ,4))
         ounce = str(round(float(pound) * 16 ,4))
 
     elif ounce:
@@ -86,6 +87,33 @@ def oneDataToOthers(byte, megabyte, gigabyte, terabyte):
 
     return byte, megabyte, gigabyte, terabyte
 
+
+
+def oneCurrencyToOther(page, usd, irr, eur, cny):
+    result = None
+    if usd:
+        result = send_request(page, "usd", ["irr", "eur", "cny"], usd)
+        result.insert(0, usd)
+    elif irr:
+        result = send_request(page, "irr", ["usd", "eur", "cny"], irr)
+        result.insert(1, irr)
+    elif eur:
+        result = send_request(page, "eur", ["usd", "irr", "cny"], eur)
+        result.insert(2, eur)
+    elif cny:
+        result = send_request(page, "cny", ["usd", "irr", "eur"], cny)
+        result.insert(3, cny)
+
+
+    if result == None:
+        return usd, irr, eur, cny
+
+    usd = round(float(result[0]), 2)
+    irr = round(float(result[1]), 2)
+    eur = round(float(result[2]), 2)
+    cny = round(float(result[3]), 2)
+
+    return usd, irr, eur, cny
 #----------------------------------------
 
 
@@ -107,21 +135,27 @@ def get_current_page(page: flet.Page):
             return 1
         case "/data":
             return 2
+        case "/currency":
+            return 3
         
 # Label to display errors
-error_label = flet.Text(value="", color=flet.colors.RED)
 
-def validate_input(e: flet.ControlEvent,page):
-    if not e.control.value.isdigit():  # Check if the input is not numeric
-        error_label.value = "Please enter a valid number"
-        error_label.color = flet.colors.RED
-    else:
-        error_label.value = ""
+
+def show_error(page, text):
+    snack_bar = flet.SnackBar(
+        flet.Text(value=text, color=flet.colors.WHITE, text_align=flet.TextAlign.CENTER), 
+        bgcolor=flet.colors.RED,
+        show_close_icon=True,
+        close_icon_color=flet.colors.WHITE)
+    page.overlay.append(snack_bar)
+    snack_bar.open = True
     page.update()
 
 
-def create_text_field(page,label):
-    text_field = flet.TextField(on_change=lambda e: validate_input(e, page),label=label, content_padding=flet.padding.Padding(15,2,15,2))
+
+
+def create_text_field(page, label, inputCleaner):
+    text_field = flet.TextField(border_radius=12, label=label, content_padding=flet.padding.Padding(15,2,15,2), on_focus=inputCleaner, input_filter=flet.NumbersOnlyInputFilter())
 
     copy_button = flet.IconButton(
         icon=flet.icons.COPY_ROUNDED,
@@ -132,3 +166,11 @@ def create_text_field(page,label):
 
 
     return text_field
+
+
+
+def check_for_invalid_input(inputs: List[str], page):
+    for i in inputs:
+        if i != "" and float(i) == 0.0:
+            show_error(page, "the number must be greater than 0")
+            return True
