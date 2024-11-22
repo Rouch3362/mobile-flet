@@ -200,6 +200,7 @@ def currency_view(page: flet.Page):
 
     def convertCurrency(e):
         usd.value, irr.value, eur.value, cny.value = helpers.oneCurrencyToOther(
+            page,
             usd.value, 
             irr.value, 
             eur.value, 
