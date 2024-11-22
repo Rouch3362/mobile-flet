@@ -118,7 +118,6 @@ def oneCurrencyToOther(page, usd, irr, eur, cny):
 
 
 def copy_to_clipboard(text, page: flet.Page):
-    print(text)
     page.set_clipboard(text)
     snack_bar = flet.SnackBar(flet.Text("Copied To Clipboard"))
     page.overlay.append(snack_bar)
@@ -155,7 +154,7 @@ def show_error(page, text):
 
 
 def create_text_field(page, label, inputCleaner):
-    text_field = flet.TextField(border_radius=12, label=label, content_padding=flet.padding.Padding(15,2,15,2), on_focus=inputCleaner, input_filter=flet.NumbersOnlyInputFilter())
+    text_field = flet.TextField(border_radius=12, label=label, content_padding=flet.padding.Padding(15,2,15,2), input_filter=flet.NumbersOnlyInputFilter())
 
     copy_button = flet.IconButton(
         icon=flet.icons.COPY_ROUNDED,
