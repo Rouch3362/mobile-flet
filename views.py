@@ -199,12 +199,14 @@ def currency_view(page: flet.Page):
 
 
     def convertCurrency(e):
-        usd.value, irr.value, eur.value, cny.value = helpers.oneCurrencyToOther(
-            page,
-            usd.value, 
-            irr.value, 
-            eur.value, 
-            cny.value)
+        try:
+            usd.value, irr.value, eur.value, cny.value = helpers.oneCurrencyToOther(
+                usd.value, 
+                irr.value, 
+                eur.value, 
+                cny.value)
+        except Exception as e:
+            helpers.show_error(page, f"{e.error_code} : {e.error_message}")
         page.update()
 
     def emptyCurrencyInputs(e):
