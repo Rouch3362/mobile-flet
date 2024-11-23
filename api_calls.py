@@ -1,6 +1,7 @@
 import requests
 from typing import List
 import helpers
+from exceptions import APIException
 
 # it does not need to be saved on env file because its shit code and its for abedi's class
 api_key = "fxf_KCgGy4oq7JA1yb5OffBg"
@@ -12,7 +13,7 @@ headers = {
 }
 
 
-def send_request(page, base, to: List[str], amount):
+def send_request(base, to: List[str], amount):
     result = []
     error_message = ""
     error_code = ""
@@ -29,9 +30,10 @@ def send_request(page, base, to: List[str], amount):
         else:
             error_message = response.json()["message"]
             error_code    = response.json()["code"]
+            raise APIException(error_code=error_code, error_message=error_message)
 
     
-    helpers.show_error(page, f"{error_code} : {error_message}")
+    # helpers.show_error(page, f"{error_code} : {error_message}")
 
             
     if not error_code or not error_message:
