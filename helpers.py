@@ -89,19 +89,19 @@ def oneDataToOthers(byte, megabyte, gigabyte, terabyte):
 
 
 
-def oneCurrencyToOther(usd, irr, eur, cny):
+def oneCurrencyToOther(api_token, usd, irr, eur, cny):
     result = None
     if usd:
-        result = send_request("usd", ["irr", "eur", "cny"], usd)
+        result = send_request(api_token,"usd", ["irr", "eur", "cny"], usd)
         result.insert(0, usd)
     elif irr:
-        result = send_request("irr", ["usd", "eur", "cny"], irr)
+        result = send_request(api_token,"irr", ["usd", "eur", "cny"], irr)
         result.insert(1, irr)
     elif eur:
-        result = send_request("eur", ["usd", "irr", "cny"], eur)
+        result = send_request(api_token,"eur", ["usd", "irr", "cny"], eur)
         result.insert(2, eur)
     elif cny:
-        result = send_request("cny", ["usd", "irr", "eur"], cny)
+        result = send_request(api_token,"cny", ["usd", "irr", "eur"], cny)
         result.insert(3, cny)
 
 

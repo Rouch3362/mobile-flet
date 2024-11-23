@@ -197,10 +197,11 @@ def data_view(page: flet.Page):
 
 def currency_view(page: flet.Page):
 
-
+    api_token = page.client_storage.get("api_token")
     def convertCurrency(e):
         try:
             usd.value, irr.value, eur.value, cny.value = helpers.oneCurrencyToOther(
+                api_token,
                 usd.value, 
                 irr.value, 
                 eur.value, 

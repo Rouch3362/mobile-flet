@@ -4,7 +4,31 @@ import views
 def main(page: flet.Page):
     page.title = "Unit Converter"
 
-    
+    if page.client_storage.get("api_token") == None:
+        def on_submit(e):
+            page.client_storage.set("api_token", input_field.value)
+            modal.open = False
+            page.update()
+
+        input_field = flet.TextField(label="Enter API Token:", autofocus=True)
+
+        modal = flet.AlertDialog(
+            title=flet.Text("User Input"),
+            content=flet.Column(
+                [
+                    input_field,
+                    flet.ElevatedButton("Submit", on_click=on_submit),
+                ],
+                tight=True,
+            ),
+            modal=True,
+        )
+
+        # Shows the modal dialog when the app opens
+        modal.open = True
+        page.overlay.append(modal)
+
+
     def show_error(text):
         snack_bar = flet.SnackBar(
             flet.Text(value=text, color=flet.colors.WHITE, text_align=flet.TextAlign.CENTER), 
