@@ -2,9 +2,13 @@ import requests
 from typing import List
 import helpers
 from exceptions import APIException
+import os
+from dotenv import load_dotenv
 
-# it does not need to be saved on env file because its shit code and its for abedi's class
-api_key = "fxf_KCgGy4oq7JA1yb5OffBg"
+load_dotenv()
+# it does not need to be saved on env file because it's shit code and it's for abedi's class. new update: github fucked me
+api_key = os.getenv("API_KEY")
+
 
 
 headers = {
@@ -38,3 +42,5 @@ def send_request(base, to: List[str], amount):
             
     if not error_code or not error_message:
         return result
+    
+    helpers.show_error(page, f"{error_code} : {error_message}")
