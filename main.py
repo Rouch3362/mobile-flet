@@ -1,10 +1,12 @@
 import flet
 import views
+import time
 
 def main(page: flet.Page):
     page.title = "Unit Converter"
 
-    if page.client_storage.get("api_token") == None:
+    # Check for API token
+    if page.client_storage.get("api_token") is None:
         def on_submit(e):
             page.client_storage.set("api_token", input_field.value)
             modal.open = False
@@ -15,36 +17,53 @@ def main(page: flet.Page):
         modal = flet.AlertDialog(
             title=flet.Text("User Input"),
             content=flet.Column(
-                [
-                    input_field,
-                    flet.ElevatedButton("Submit", on_click=on_submit),
-                ],
+                [input_field, flet.ElevatedButton("Submit", on_click=on_submit)],
                 tight=True,
             ),
             modal=True,
         )
-
-        # Shows the modal dialog when the app opens
         modal.open = True
         page.overlay.append(modal)
 
+    
+    content_container = flet.Container()
 
-    def show_error(text):
-        snack_bar = flet.SnackBar(
-            flet.Text(value=text, color=flet.colors.WHITE, text_align=flet.TextAlign.CENTER), 
-            bgcolor=flet.colors.RED,
-            show_close_icon=True,
-            close_icon_color=flet.colors.WHITE
-        )
-        page.overlay.append(snack_bar)
-        snack_bar.open = True
+    def fade_in(element, duration=0.5):
+        steps = 10
+        step_duration = duration / steps
+        opacity = 0.0
+    
+        for _ in range(steps):
+            opacity += 1 / steps
+            element.opacity = opacity
+            page.update()
+            time.sleep(step_duration)
+
+    
+    def navigation_handler(selected_index):
+        if selected_index == 0:
+            content_container.content = views.length_view(page)
+        elif selected_index == 1:
+            content_container.content = views.weight_view(page)
+        elif selected_index == 2:
+            content_container.content = views.data_view(page)
+        elif selected_index == 3:
+            content_container.content = views.currency_view(page)
+        
+        fade_in(content_container)
+
         page.update()
 
-    page.views.append(views.length_view(page))
-    page.navigation_bar = views.navBar(page)
+   
+    page.navigation_bar = views.navBar(page, navigation_handler)
+
+    
+    content_container.content = views.length_view(page)
+    
     title = flet.Row([flet.Text("Unit Convertor", weight=flet.FontWeight.W_500, size=28, text_align=flet.TextAlign.CENTER)],alignment=flet.MainAxisAlignment.CENTER)
     page.overlay.append(title)
+    
+    page.add(content_container)
 
-    page.update()
 
-flet.app(main)
+flet.app(target=main)
