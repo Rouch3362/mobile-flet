@@ -66,4 +66,4 @@ def main(page: flet.Page):
     page.add(content_container)
 
 
-flet.app(target=main)
+flet.app(target=main, assets_dir="assets")
